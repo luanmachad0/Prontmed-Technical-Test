@@ -1,0 +1,152 @@
+openapi: 3.0.1
+info:
+  title: Prontmed Teste
+  version: v1
+servers:
+  - url: 'http://localhost:7000'
+paths:
+  /api/todos:
+    get:
+      tags:
+        - TODO
+      summary: Retorna todos os TODOs
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TodosModel'
+        '204':
+          description: NoContent
+    post:
+      tags:
+        - TODO
+      summary: Cria um TODO
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoCreateModel'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodosModel'
+          
+  '/api/todos/{todoid}':
+    get:
+      tags:
+        - TODO
+      summary: Retorna um TODO por ID
+      parameters:
+        - name: todoid
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodosModel'
+        '404':
+          description: NotFound
+    delete:
+      tags:
+        - TODO
+      summary: Remove um TODO por ID
+      parameters:
+        - name: todoid
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Success
+    put:
+      tags:
+        - TODO
+      summary: Atualiza um TODO por ID
+      parameters:
+        - name: todoid
+          in: path
+          description: ''
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TodoUpdateModel'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TodosModel'
+                
+components:
+  schemas:
+    TodosModel:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: id do objeto todo
+          example: 1
+        name:
+          type: string
+          description: Nome do TODO
+          example: "TODO direto do banco de dados"
+        completed:
+          type: boolean
+          description: TODO completo?
+        insertedAt:
+          type: string
+          format: date-time
+          description: "Date que foi inserido"
+        updatedAt:
+          type: string
+          format: date-time
+          description: "Date da ultima atualização"
+      additionalProperties: false
+      required:
+        - name
+    TodoUpdateModel:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nome do TODO. Se for vazio, não atualizar o recurso no banco
+          example: "Meu novo nome de TODO"
+        completed:
+          type: boolean
+          description: TODO completo? 
+      additionalProperties: false
+      required:
+        - name
+        - completed
+    TodoCreateModel:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Nome do TODO.
+          example: "Esse TODO é novo!"
+      additionalProperties: false
+      required:
+        - name
