@@ -1,0 +1,57 @@
+version: "3.9"
+
+services:
+  prontmed-fe:
+    build:
+      dockerfile: Dockerfile
+      context: ./Frontend
+    environment:
+      - REACT_APP_BASE_URL=${REACT_APP_BASE_URL}
+      - REACT_APP_BASE_URL_TODOS=${REACT_APP_BASE_URL}/todo
+    ports:
+      - 3000:3000
+  postgresql_database:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=tododb
+    ports:
+      - "5432:5432"
+    restart: always
+    volumes:
+      - ./Backend/Backend/postgresql-dump:/docker-entrypoint-initdb.d/
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=pgadmin4@pgadmin.org
+      - PGADMIN_DEFAULT_PASSWORD=admin1234
+    ports:
+      - "5050:80"
+    restart: always
+    volumes:
+      - pgadmin:/root/.pgadmin
+  prontmed-api:
+    depends_on:
+      - "postgresql_database"
+    build:
+      dockerfile: Dockerfile
+      context: ./Backend/Backend
+    ports:
+      - 7000:80
+    environment:
+      DB_CONNECTION_STRING: "Host=postgresql_database;Port=5432;Database=tododb;Username=admin;Password=admin1234"
+  swagger-ui:
+    image: swaggerapi/swagger-ui
+    container_name: "swagger-ui"
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./test-backend.yaml:/prontmed-backend.yaml
+    environment:
+      SWAGGER_JSON: /prontmed-backend.yaml
+      # API_URL: ""
+
+volumes:
+  database-data:
+  pgadmin:
